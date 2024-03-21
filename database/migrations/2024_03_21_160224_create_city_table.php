@@ -27,7 +27,7 @@ return new class extends Migration
         DB::table('city')->insert([
             ['province_id' => 1, 'city_type' => 'Kota', 'city_name' => 'Mataram', 'created_at' => now(), 'updated_at' => now()],
             ['province_id' => 1, 'city_type' => 'Kota', 'city_name' => 'Mataram', 'created_at' => now(), 'updated_at' => now()],
-            ['province_id' => 2, 'city_type' => 'Kabupaten', 'city_name' => 'Kupang', 'created_at' => now(), 'updated_at' => now()],
+            ['province_id' => 2, 'city_type' => 'Kabupaten', 'city_name' => 'Sumbawa', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 

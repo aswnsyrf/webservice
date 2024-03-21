@@ -23,7 +23,7 @@ return new class extends Migration
         // Memasukkan data ke dalam tabel province
         DB::table('province')->insert([
             ['province_code' => 'NTB', 'province_name' => 'Nusa Tenggara Barat', 'created_at' => now(), 'updated_at' => now()],
-            ['province_code' => 'NTT', 'province_name' => 'Nusa Tenggara Timur', 'created_at' => now(), 'updated_at' => now()],
+            ['province_code' => 'NTT', 'province_name' => 'Nusa Tenggara Barat', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 
