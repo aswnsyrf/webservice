@@ -8,13 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 use App\Helpers\ApiFormatter;
-use App\Models\ProvinceModel;
+use App\Models\CityModel;
 
-class ProvinceController extends Controller
+
+class CityController extends Controller
 {
     public function index(Request $request)
     {
-        $province = ProvinceModel::orderby('province_id', 'ASC')->get();
+        $province = CityModel::orderby('city_id', 'ASC')->get();
         $response = ApiFormatter::createJson(200, 'Get Data Success', $province);
         return response()->json($response);
     }
@@ -27,13 +28,14 @@ class ProvinceController extends Controller
             $validator = Validator::make(
                 $params,
                 [
-                    'code' => 'required|max:10',
+                    'province' => 'required',
+                    'type' => 'required',
                     'name' => 'required',
                 ],
                 [
-                    'code.required' => 'Province Code is required',
-                    'code.max'      => 'Province Code must not exceed 10 characters',
-                    'name.required' => 'Province Name is required',
+                    'province.required' => 'Province id is required',
+                    'type.required' => 'City Type is required',
+                    'name.required' => 'City Name is required',
                 ]
             );
 
@@ -42,15 +44,16 @@ class ProvinceController extends Controller
                 return response()->json($response);
             }
 
-            $province = [
-                'province_code' => $params['code'],
-                'province_name' => $params['name'],
+            $city = [
+                'province_id' => $params['province'],
+                'city_type' => $params['type'],
+                'city_name' => $params['name'],
             ];
 
-            $data = ProvinceModel::create($province);
-            $createdProvince = ProvinceModel::find($data->province_id);
+            $data = CityModel::create($city);
+            $createdCity = CityModel::find($data->city_id);
 
-            $response = ApiFormatter::createJson(200, 'Create province success', $createdProvince);
+            $response = ApiFormatter::createJson(200, 'Create city success', $createdCity);
             return response()->json($response);
         } catch (\Exception $e) {
             $response = ApiFormatter::createJson(500, 'Internal Server Error', $e->getMessage());
@@ -61,13 +64,13 @@ class ProvinceController extends Controller
     public function detail($id)
     {
         try {
-            $province = ProvinceModel::find($id);
+            $city = CityModel::find($id);
 
-            if (is_null($province)) {
-                return ApiFormatter::createJson(404, 'province not found');
+            if (is_null($city)) {
+                return ApiFormatter::createJson(404, 'city not found');
             }
 
-            $response = ApiFormatter::createJson(200, 'Get detail province sucess', $province);
+            $response = ApiFormatter::createJson(200, 'Get detail city sucess', $city);
             return response()->json($response);
         } catch (\Exception $e) {
             $response = ApiFormatter::createJson(400, $e->getMessage());
@@ -80,21 +83,22 @@ class ProvinceController extends Controller
         try {
             $params = $request->all();
 
-            $preProvince = ProvinceModel::find($id);
-            if (is_null($preProvince)) {
+            $preCity = CityModel::find($id);
+            if (is_null($preCity)) {
                 return ApiFormatter::createJson(404, 'Data not found');
             }
 
             $validator = Validator::make(
                 $params,
                 [
-                    'code' => 'required|max:10',
+                    'province' => 'required',
+                    'type' => 'required',
                     'name' => 'required',
                 ],
                 [
-                    'code.required' => 'Province Code is required',
-                    'code.max'      => 'Province Code must not exceed 10 characters',
-                    'name.required' => 'Province Name is required',
+                    'province.required' => 'Province id is required',
+                    'type.required' => 'City Type is required',
+                    'name.required' => 'City Name is required',
                 ]
             );
 
@@ -103,15 +107,16 @@ class ProvinceController extends Controller
                 return response()->json($response);
             }
 
-            $province = [
-                'province_code' => $params['code'],
-                'province_name' => $params['name'],
+            $city = [
+                'province_id' => $params['province'],
+                'city_type' => $params['type'],
+                'city_name' => $params['name'],
             ];
 
-            $preProvince->update($province);
-            $updatedProvince = $preProvince->fresh();
+            $preCity->update($city);
+            $updatedCity = $preCity->fresh();
 
-            $response = ApiFormatter::createJson(200, 'Update province success', $updatedProvince);
+            $response = ApiFormatter::createJson(200, 'Update city success', $updatedCity);
             return response()->json($response);
         } catch (\Exception $e) {
             $response = ApiFormatter::createJson(500, 'Internal Server Error', $e->getMessage());
@@ -124,20 +129,19 @@ class ProvinceController extends Controller
         try {
             $params = $request->all();
 
-            $preProvince = ProvinceModel::find($id);
-            if (is_null($preProvince)) {
+            $preCity = CityModel::find($id);
+            if (is_null($preCity)) {
                 return ApiFormatter::createJson(404, 'Data not found');
             }
 
-            if (isset($params['code'])) {
+            if (isset($params['province'])) {
                 $validator = Validator::make(
                     $params,
                     [
-                        'code' => 'required|max:10',
+                        'province' => 'required',
                     ],
                     [
-                        'code.required' => 'Province Code is required',
-                        'code.max' => 'Province Code must not exceed 10 characters',
+                        'province.required' => 'Province id is required',
                     ]
                 );
 
@@ -146,7 +150,26 @@ class ProvinceController extends Controller
                     return response()->json($response);
                 }
 
-                $province['province_code'] = $params['code'];
+                $city['province_id'] = $params['province'];
+            }
+
+            if (isset($params['type'])) {
+                $validator = Validator::make(
+                    $params,
+                    [
+                        'type' => 'required',
+                    ],
+                    [
+                        'type.required' => 'City Type is required',
+                    ]
+                );
+
+                if ($validator->fails()) {
+                    $response = ApiFormatter::createJson(400, 'Bad Request', $validator->errors()->all());
+                    return response()->json($response);
+                }
+
+                $city['city_type'] = $params['type'];
             }
 
             if (isset($params['name'])) {
@@ -156,7 +179,7 @@ class ProvinceController extends Controller
                         'name' => 'required',
                     ],
                     [
-                        'name.required' => 'Province Name is required',
+                        'name.required' => 'City Name is required',
                     ]
                 );
 
@@ -165,13 +188,13 @@ class ProvinceController extends Controller
                     return response()->json($response);
                 }
 
-                $province['province_name'] = $params['name'];
+                $city['city_name'] = $params['name'];
             }
 
-            $preProvince->update($province);
-            $updatedProvince = $preProvince->fresh();
+            $preCity->update($city);
+            $updatedCity = $preCity->fresh();
 
-            $response = ApiFormatter::createJson(200, 'Update province success', $updatedProvince);
+            $response = ApiFormatter::createJson(200, 'Update city success', $updatedCity);
             return response()->json($response);
         } catch (\Exception $e) {
             $response = ApiFormatter::createJson(500, 'Internal Server Error', $e->getMessage());
@@ -182,15 +205,15 @@ class ProvinceController extends Controller
     public function delete($id)
     {
         try {
-            $province = ProvinceModel::find($id);
+            $city = CityModel::find($id);
 
-            if (is_null($province)) {
+            if (is_null($city)) {
                 return ApiFormatter::createJson(404, 'Data not found');
             }
 
-            $province->delete();
+            $city->delete();
 
-            $response = ApiFormatter::createJson(200, 'Delete province success');
+            $response = ApiFormatter::createJson(200, 'Delete city success');
             return response()->json($response);
         } catch (\Exception $e) {
             $response = ApiFormatter::createJson(500, 'Internal Server Error', $e->getMessage());
