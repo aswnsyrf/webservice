@@ -12,10 +12,29 @@ use App\Models\ProvinceModel;
 
 class ProvinceController extends Controller
 {
+    protected $authorization = 123;
+
     public function index(Request $request)
     {
+        // $province = ProvinceModel::orderby('province_id', 'ASC')->get();
+        // $response = ApiFormatter::createJson(200, 'Get Data Success', $province);
+        // return response()->json($response);
+
+        if ($request->header('Authorization') != $this->authorization){
+            $response = ApiFormatter::createJson(401,'Unauthorized');
+            return response()->json($response);
+        }
         $province = ProvinceModel::orderby('province_id', 'ASC')->get();
-        $response = ApiFormatter::createJson(200, 'Get Data Success', $province);
+
+        if ($request->header('Accept')=='text/html'){
+            $html = '<ul>';
+            foreach($province as $key => $value){
+                $html .= '<li>' . $value->province_name . '</li>';
+            }
+            $html .= '</ul>';
+            return response($html)->header('Content-Type','text/html');
+        }
+         $response = ApiFormatter::createJson(200, 'Get Data Success', $province);
         return response()->json($response);
     }
 
